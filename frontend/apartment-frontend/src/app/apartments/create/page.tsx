@@ -1,4 +1,4 @@
-'use client';
+'use client'; // Marks this as a client component for Next.js
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,36 +6,64 @@ import axios from 'axios';
 
 export default function CreateApartmentPage() {
   const router = useRouter();
+
+  // -------------------------------
+  // Form State
+  // -------------------------------
   const [form, setForm] = useState({
-    unitName: '',
-    unitNumber: '',
-    project: '',
-    description: '',
+    unitName: '',     // Apartment's display name
+    unitNumber: '',   // Apartment's unique number
+    project: '',      // Associated project name
+    description: '',  // Optional description
   });
+
+  // Error message state
   const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // -------------------------------
+  // Handle Input Changes
+  // -------------------------------
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value, // Update the field by its name
+    });
   };
 
+  // -------------------------------
+  // Handle Form Submit
+  // -------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // Prevent page reload
+    setError('');       // Clear any previous errors
 
     try {
+      // Send POST request to backend API
       await axios.post('http://192.168.8.165:5000/apartments', form);
+
+      // Redirect to the apartments list page on success
       router.push('/apartments');
     } catch (err: unknown) {
-    setError('Failed to create apartment');
+      // Show generic error message if creation fails
+      setError('Failed to create apartment');
     }
   };
 
+  // -------------------------------
+  // JSX (Form UI)
+  // -------------------------------
   return (
     <div className="max-w-lg mx-auto mt-12 p-8 bg-white rounded-xl shadow-lg border border-gray-100">
+      {/* Page Title */}
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
         Add New Apartment
       </h2>
+
+      {/* Apartment Creation Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Unit Name */}
         <input
           type="text"
           name="unitName"
@@ -45,6 +73,8 @@ export default function CreateApartmentPage() {
           onChange={handleChange}
           required
         />
+
+        {/* Unit Number */}
         <input
           type="text"
           name="unitNumber"
@@ -54,6 +84,8 @@ export default function CreateApartmentPage() {
           onChange={handleChange}
           required
         />
+
+        {/* Project Name */}
         <input
           type="text"
           name="project"
@@ -63,6 +95,8 @@ export default function CreateApartmentPage() {
           onChange={handleChange}
           required
         />
+
+        {/* Description */}
         <textarea
           name="description"
           placeholder="Description"
@@ -89,6 +123,7 @@ export default function CreateApartmentPage() {
           Create Apartment
         </button>
 
+        {/* Error Message */}
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </div>

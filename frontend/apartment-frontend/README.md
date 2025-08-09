@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Apartment Frontend – Nawy
 
-## Getting Started
+📌 Project Overview
+Apartment Frontend – Nawy is a Next.js web application that allows users to browse apartment listings, view detailed information, and manage their accounts via authentication.
+The project integrates with a backend API (documented via Swagger) for fetching apartment data and handling user authentication (login/signup).
 
-First, run the development server:
+It uses:
+    Next.js (App Router) for the frontend framework
+    TypeScript for type safety
+    Tailwind CSS for styling
+    Axios for HTTP requests to the backend
+    Next Router for page navigation
 
-```bash
+ Getting Started
+
+1️⃣ Prerequisites
+
+Make sure you have:
+Node.js (v18+ recommended)
+npm, yarn, pnpm, or bun package manager
+
+2️⃣ Installation
+
+Clone the repository and install dependencies:
+git clone <your-repo-url>
+cd apartment-frontend
+npm install
+
+3️⃣ Running the Development Server
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📂 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+src/
+ ├── app/                 # Main application pages (Next.js App Router)
+ │   ├── apartments/      # Apartments listing & details
+ │   │   ├── page.tsx     # List all apartments
+ │   │   ├── [id]/page.tsx# Apartment details page
+ │   ├── authentication/  # Login & Signup pages
+ │   │   ├── login/page.tsx
+ │   │   ├── signup/page.tsx
+ │   ├── globals.css       # Global styles
+ │   ├── layout.tsx        # Root layout
+ │   └── page.tsx          # Home page
+ ├── components/           # Reusable UI components
+ └── ...
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🖥 Pages & Features
 
-## Learn More
+🔑 Authentication
 
-To learn more about Next.js, take a look at the following resources:
+1. Login Page (/authentication/login)
+    Allows users to log in with username and password
+    Sends POST request to http://IPAdressIPV4/auth/login
+    On success → redirects to /apartments
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Signup Page (/authentication/signup)
+    Allows new users to create accounts
+    Sends POST request to http://IPAdressIPV4:Port/auth/signup with default role "user"
+    On success → redirects to /apartments
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+🏢 Apartments
+1. Apartments List (/apartments)
+    Fetches apartments from backend API
+    Displays a list with basic details
+    Clicking on an apartment navigates to details page
 
-## Deploy on Vercel
+2. Apartment Details (/apartments/[id])
+    Displays detailed apartment information fetched via ID from backend
+    Uses useEffect to fetch data on mount
+    Shows layout, price, and other property details
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🔗 API Integration
+The frontend communicates with the backend using Axios to call REST API endpoints:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Action	                Method	            Endpoint
+Login	                POST	            /auth/login
+Signup	                POST	            /auth/signup
+Get Apartments	        GET	                /apartments
+Get Apartment by ID	    GET             	/apartments/:id
+
+🛠 Technologies Used
+Next.js         – React framework for server-rendered apps
+TypeScript      – Static type checking
+Tailwind CSS    – Utility-first styling
+Axios           – HTTP client for API requests
+Next Router     – Navigation between pages
+
