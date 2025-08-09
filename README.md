@@ -52,12 +52,12 @@ src/
 
 1. Login Page (/authentication/login)
     Allows users to log in with username and password
-    Sends POST request to http://IPAdressIPV4/auth/login
+    Sends POST request to http://IPAdressIPV4/authentication/login
     On success → redirects to /apartments
 
 2. Signup Page (/authentication/signup)
     Allows new users to create accounts
-    Sends POST request to http://IPAdressIPV4:Port/auth/signup with default role "user"
+    Sends POST request to http://IPAdressIPV4:Port/authentication/signup with default role "user"
     On success → redirects to /apartments
 
 🏢 Apartments
