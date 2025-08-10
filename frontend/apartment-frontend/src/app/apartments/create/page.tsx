@@ -1,8 +1,16 @@
 'use client'; // Marks this as a client component for Next.js
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {jwtDecode} from 'jwt-decode';
+
 import axios from 'axios';
+
+// Type definition for decoded JWT payload
+type JwtPayload = {
+  username: string;
+  exp?: number; // optional expiration timestamp (seconds since epoch)
+};
 
 export default function CreateApartmentPage() {
   const router = useRouter();
@@ -19,6 +27,41 @@ export default function CreateApartmentPage() {
 
   // Error message state
   const [error, setError] = useState('');
+
+  const [username, setUsername] = useState<string | null>(null); // Username from JWT
+
+  // -------------------------------
+  // Verify JWT Token
+  // -------------------------------
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    // Basic check: token must be in JWT format (three parts separated by '.')
+    if (!token || token.split('.').length !== 3) {
+      router.push('/authentication/login'); // Redirect if no token or invalid format
+      return;
+    }
+
+    try {
+      // Decode token payload using jwt-decode library
+      const decoded = jwtDecode<JwtPayload>(token);
+
+      // Check token expiration if 'exp' claim exists
+      if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+        // Token expired, clear token and redirect to login
+        localStorage.removeItem('token');
+        router.push('/authentication/login');
+        return;
+      }
+
+      // Token valid, set username from payload
+      setUsername(decoded.username);
+    } catch (error) {
+      console.error('JWT decode failed:', error);
+      localStorage.removeItem('token');
+      router.push('/authentication/login'); // Fixed spelling
+    }
+  }, [router]);  
 
   // -------------------------------
   // Handle Input Changes

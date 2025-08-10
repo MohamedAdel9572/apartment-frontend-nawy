@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import {jwtDecode} from 'jwt-decode';
 import axios from 'axios';
 
 // ----------------------------------
@@ -15,6 +16,12 @@ type Apartment = {
   description: string; // Optional description
 };
 
+// Type definition for decoded JWT payload
+type JwtPayload = {
+  username: string;
+  exp?: number; // optional expiration timestamp (seconds since epoch)
+};
+
 export default function ApartmentDetailsPage() {
   // -------------------------------
   // Hooks & Router
@@ -25,6 +32,7 @@ export default function ApartmentDetailsPage() {
   // -------------------------------
   // Component State
   // -------------------------------
+  const [username, setUsername] = useState<string | null>(null); // Username from JWT
   const [apartment, setApartment] = useState<Apartment | null>(null); // Apartment details
   const [loading, setLoading] = useState(true); // Loading indicator
 
@@ -38,6 +46,39 @@ export default function ApartmentDetailsPage() {
       .catch(() => console.error('Failed to load apartment'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // -------------------------------
+  // Verify JWT Token
+  // -------------------------------
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    // Basic check: token must be in JWT format (three parts separated by '.')
+    if (!token || token.split('.').length !== 3) {
+      router.push('/authentication/login'); // Redirect if no token or invalid format
+      return;
+    }
+
+    try {
+      // Decode token payload using jwt-decode library
+      const decoded = jwtDecode<JwtPayload>(token);
+
+      // Check token expiration if 'exp' claim exists
+      if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+        // Token expired, clear token and redirect to login
+        localStorage.removeItem('token');
+        router.push('/authentication/login');
+        return;
+      }
+
+      // Token valid, set username from payload
+      setUsername(decoded.username);
+    } catch (error) {
+      console.error('JWT decode failed:', error);
+      localStorage.removeItem('token');
+      router.push('/authentication/login'); // Fixed spelling
+    }
+  }, [router]);
 
   // -------------------------------
   // Delete Apartment
@@ -79,6 +120,13 @@ export default function ApartmentDetailsPage() {
   // -------------------------------
   return (
     <div className="p-6 max-w-3xl mx-auto">
+      {/* Welcome message */}
+      {username && (
+        <p className="text-gray-600 mb-4">
+          Welcome, <span className="font-semibold">{username}</span>!
+        </p>
+      )}
+
       {/* Apartment Details Card */}
       <div className="bg-white shadow-xl rounded-xl p-8 border border-gray-100">
         {/* Title */}

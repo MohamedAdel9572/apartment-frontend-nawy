@@ -1,51 +1,66 @@
 'use client'; 
-// Marks this file as a Client Component in Next.js — required for using React hooks like useState
+// Marks this file as a Client Component in Next.js — needed for React hooks
 
-import { useState } from 'react';              // React hook for managing state (form inputs, error)
-import axios from 'axios';                     // For sending HTTP requests to backend
-import { useRouter } from 'next/navigation';   // Next.js hook for programmatic navigation
+import { useState } from 'react';                  // React hook for state management
+import axios from 'axios';                         // HTTP client for API calls
+import { useRouter } from 'next/navigation';      // Next.js hook for navigation
+import Link from 'next/link';                      // Next.js Link for SPA navigation
 
+/**
+ * LoginPage Component
+ * 
+ * Renders a login form where users can enter their username and password to authenticate.
+ * On successful login, it stores the JWT token and redirects to the apartments listing page.
+ * Displays error messages on login failure.
+ */
 export default function LoginPage() {
   // -------------------------------
   // State Management
   // -------------------------------
-  const [username, setUsername] = useState(''); // Stores entered username
-  const [password, setPassword] = useState(''); // Stores entered password
-  const [error, setError] = useState('');       // Stores error message for failed login attempts
+  const [username, setUsername] = useState('');   // Stores entered username
+  const [password, setPassword] = useState('');   // Stores entered password
+  const [error, setError] = useState('');         // Stores error messages
 
-  const router = useRouter(); // Navigation object for redirecting users after login
-
-  // -------------------------------
-  // Handle Login Submission
-  // -------------------------------
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission (page reload)
-    setError('');       // Clear any previous error message
-
-    try {
-      // Send POST request to backend login API with username & password
-      const res = await axios.post('http://192.168.8.165:5000/auth/login', {
-        username,
-        password,
-      });
-
-      // OPTIONAL: Store token for authentication (if backend returns it)
-      // localStorage.setItem('token', res.data.token);
-
-      // Redirect to apartments list page on successful login
-      router.push('/apartments');
-    } catch (err: unknown) {
-      // Display generic error message if login fails
-      setError('Login failed');
-    }
-  };
+  const router = useRouter();                      // Router object to redirect programmatically
 
   // -------------------------------
-  // JSX (UI Rendering)
+  // API Base URL from environment
+  // -------------------------------
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  /**
+   * Handle form submission for login
+   * 
+   * @param e - Form submission event
+   */
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+
+  try {
+    const res = await axios.post(`${API_URL}/auth/login`, { username, password });
+    const token = res.data.token;
+
+    localStorage.setItem('token', token);
+
+    router.push('/apartments');
+  } catch (err) {
+  if (axios.isAxiosError(err) && err.response?.data?.error) {
+    setError(err.response.data.error);
+  } else if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('Login failed');
+  }
+}
+};
+
+  // -------------------------------
+  // JSX Rendering
   // -------------------------------
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 px-4">
-      {/* Login Card */}
+      {/* Login Card Container */}
       <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-8 w-full max-w-md animate-fadeIn">
         
         {/* Page Title */}
@@ -53,7 +68,7 @@ export default function LoginPage() {
           Welcome Back
         </h2>
 
-        {/* Error Message (if exists) */}
+        {/* Error Message */}
         {error && (
           <p className="text-red-500 text-center mb-4 bg-red-50 py-2 px-3 rounded-lg border border-red-200">
             {error}
@@ -62,7 +77,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-5">
-          {/* Username Field */}
+          {/* Username Input */}
           <input
             type="text"
             placeholder="Username"
@@ -72,7 +87,7 @@ export default function LoginPage() {
             required
           />
 
-          {/* Password Field */}
+          {/* Password Input */}
           <input
             type="password"
             placeholder="Password"
@@ -91,16 +106,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Sign Up Redirect */}
+        {/* Signup Link */}
         <p className="text-center text-gray-600 mt-6">
           Don’t have an account?{' '}
-          <a href="/authentication/signup" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/authentication/signup" className="text-blue-600 font-semibold hover:underline">
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
 
-      {/* Animation Styles */}
+      {/* Fade-in Animation CSS */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
